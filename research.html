@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobAround - Dashboard del Ricercatore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --border: #cbd5e1;
+            --primary: #1e3a8a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 2rem;
+            margin: 0;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .kpi-title {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.5rem;
+        }
+
+        .controls-panel {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #475569;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .error-msg {
+            background-color: #fef2f2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-header">
+        <h1>📊 JobAround - Research Dashboard</h1>
+        <div id="status-badge">In attesa di connessione...</div>
+    </div>
+
+    <div id="error-box" class="error-msg"></div>
+
+    <!-- METRICHE STATISTICHE DESCRITTIVE -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">Partecipanti Totali</div>
+            <div class="kpi-value" id="kpi-total">0</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Tempo Medio prima del Click</div>
+            <div class="kpi-value" id="kpi-mean">0.0s</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Tempo Mediano</div>
+            <div class="kpi-value" id="kpi-median">0.0s</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Min / Max (s)</div>
+            <div class="kpi-value" id="kpi-range">0 / 0</div>
+        </div>
+    </div>
+
+    <!-- CONTROLLI ED ESPORTAZIONE -->
+    <div class="controls-panel">
+        <button class="btn" id="btn-export-csv">📥 Esporta CSV</button>
+        <button class="btn btn-secondary" id="btn-export-json">📥 Esporta JSON</button>
+        <button class="btn btn-secondary" id="btn-refresh" style="margin-left: auto;">🔄 Aggiorna Dati</button>
+    </div>
+
+    <!-- TABELLA DATI REALI FIRESTORE -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Session ID</th>
+                    <th>Entrata (entryTime)</th>
+                    <th>Click (clickTime)</th>
+                    <th>Tempo al Click (s)</th>
+                    <th>Tempo in Pagina (s)</th>
+                    <th>Pulsante Utilizzato</th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body">
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #64748b;">Nessuna sessione registrata.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- FIREBASE MODULES -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // CONFIGURAZIONE FIREBASE
+        const firebaseConfig = {
+                apiKey: "AIzaSyD_TAgl9zyLc5-HTmhRJk_TOLdi882zeDs",
+
+    authDomain: "sitobanner-90b36.firebaseapp.com",
+
+    projectId: "sitobanner-90b36",
+
+    storageBucket: "sitobanner-90b36.firebasestorage.app",
+
+    messagingSenderId: "937428358060",
+
+    appId: "1:937428358060:web:8595298978041df30f2009"
+
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let sessionsData = [];
+
+        async function loadResearchDashboard() {
+            const tableBody = document.getElementById('data-table-body');
+            const errorBox = document.getElementById('error-box');
+            errorBox.style.display = 'none';
+
+            try {
+                // QUERY FIRESTORE CON ORDINAMENTO CRONOLOGICO (DA PIÙ VECCHIO A PIÙ RECENTE)
+                const sessionsRef = collection(db, "experiments", "jobaround", "sessions");
+                const q = query(sessionsRef, orderBy("entryTime", "asc"));
+                const querySnapshot = await getDocs(q);
+
+                sessionsData = [];
+                querySnapshot.forEach((doc) => {
+                    sessionsData.push(doc.data());
+                });
+
+                if (sessionsData.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" style="text-align: center;">Nessuna sessione registrata.</td></tr>`;
+                    updateKPIs([]);
+                    return;
+                }
+
+                // RENDERING TABELLA
+                tableBody.innerHTML = '';
+                sessionsData.forEach((session, index) => {
+                    const tr = document.createElement('tr');
+                    
+                    const entryFormatted = session.entryTime ? new Date(session.entryTime).toLocaleString('it-IT') : 'N/D';
+                    const clickFormatted = session.clickTime ? new Date(session.clickTime).toLocaleString('it-IT') : 'N/D';
+
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td><code>${session.sessionId || 'N/D'}</code></td>
+                        <td>${entryFormatted}</td>
+                        <td>${clickFormatted}</td>
+                        <td><strong>${session.timeToApply !== undefined ? session.timeToApply + ' s' : 'N/D'}</strong></td>
+                        <td>${session.timeOnPage !== undefined ? session.timeOnPage + ' s' : 'N/D'}</td>
+                        <td><code>${session.button || 'N/D'}</code></td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+
+                updateKPIs(sessionsData);
+
+            } catch (error) {
+                console.error("Errore caricamento dati:", error);
+                errorBox.style.display = 'block';
+                errorBox.textContent = "Errore durante il recupero dei dati da Firestore: " + error.message;
+            }
+        }
+
+        // CALCOLO METRICHE STATISTICHE DESCRITTIVE REALI
+        function updateKPIs(data) {
+            const validTimes = data
+                .filter(d => typeof d.timeToApply === 'number')
+                .map(d => d.timeToApply);
+
+            document.getElementById('kpi-total').textContent = data.length;
+
+            if (validTimes.length === 0) {
+                document.getElementById('kpi-mean').textContent = "0.0s";
+                document.getElementById('kpi-median').textContent = "0.0s";
+                document.getElementById('kpi-range').textContent = "0 / 0";
+                return;
+            }
+
+            // Media
+            const sum = validTimes.reduce((acc, val) => acc + val, 0);
+            const mean = sum / validTimes.length;
+
+            // Mediana
+            const sorted = [...validTimes].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            const median = sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+
+            // Minimo e Massimo
+            const min = Math.min(...validTimes);
+            const max = Math.max(...validTimes);
+
+            document.getElementById('kpi-mean').textContent = `${mean.toFixed(2)}s`;
+            document.getElementById('kpi-median').textContent = `${median.toFixed(2)}s`;
+            document.getElementById('kpi-range').textContent = `${min.toFixed(1)}s / ${max.toFixed(1)}s`;
+        }
+
+        // ESPORTAZIONE CSV
+        function exportCSV() {
+            if (sessionsData.length === 0) return alert("Nessun dato da esportare.");
+
+            const headers = ["sessionId", "entryTime", "clickTime", "timeToApply", "timeOnPage", "button"];
+            const rows = sessionsData.map(s => [
+                s.sessionId || '',
+                s.entryTime || '',
+                s.clickTime || '',
+                s.timeToApply !== undefined ? s.timeToApply : '',
+                s.timeOnPage !== undefined ? s.timeOnPage : '',
+                s.button || ''
+            ]);
+
+            let csvContent = "data:text/csv;charset=utf-8," 
+                + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `jobaround_experiment_data_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // ESPORTAZIONE JSON
+        function exportJSON() {
+            if (sessionsData.length === 0) return alert("Nessun dato da esportare.");
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(sessionsData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `jobaround_experiment_data_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // EVENT BINDING
+        document.getElementById('btn-refresh').addEventListener('click', loadResearchDashboard);
+        document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+        document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+
+        // Inizializzazione automatica
+        loadResearchDashboard();
+    </script>
+</body>
+</html>

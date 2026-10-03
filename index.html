@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Junior Content & Digital Assistant - JobAround</title>
+    
+    <!-- Open Sans & Inter Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-hover: #1e40af;
+            --accent: #dc2626;
+            --accent-bg: #fef2f2;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 60px;
+        }
+
+        /* HEADER */
+        .site-header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .brand-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-logo span {
+            color: var(--accent);
+        }
+
+        .search-bar-mock {
+            display: flex;
+            flex: 1;
+            max-width: 500px;
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .search-bar-mock input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            outline: none;
+            font-size: 0.875rem;
+            color: var(--text-main);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* URGENCY NUDGE BANNER */
+        .nudge-banner {
+            background-color: #fef2f2;
+            border-bottom: 2px solid var(--accent);
+            padding: 0.875rem 1rem;
+            text-align: center;
+            position: sticky;
+            top: 61px;
+            z-index: 90;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nudge-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: #991b1b;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .timer-badge {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.25rem 0.65rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            letter-spacing: 0.05em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* MAIN CONTAINER */
+        .main-wrapper {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 2rem;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .job-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .company-name {
+            font-size: 1.1rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge {
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px solid #bfdbfe;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.825rem;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--text-main);
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 0.5rem;
+        }
+
+        ul.job-list {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        ul.job-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* SIDEBAR & CTA */
+        .sidebar {
+            position: sticky;
+            top: 130px;
+            height: fit-content;
+        }
+
+        .apply-btn {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .apply-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .apply-btn:active {
+            transform: scale(0.99);
+        }
+
+        .apply-btn:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .apply-btn-large {
+            font-size: 1.2rem;
+            padding: 1.25rem 2rem;
+            background-color: #15803d;
+        }
+
+        .apply-btn-large:hover {
+            background-color: #166534;
+        }
+
+        /* OFFICE GALLERY */
+        .office-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .office-gallery img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #e2e8f0;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 900px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+            }
+            .search-bar-mock {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="#" class="brand-logo">
+                JobAround<span>.</span>
+            </a>
+            <div class="search-bar-mock">
+                <span>🔍</span>
+                <input type="text" placeholder="Cerca posizione, competenze o azienda..." disabled>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#">Cerca Lavoro</a></li>
+                <li><a href="#">Aziende</a></li>
+                <li><a href="#">Accedi</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- NUDGE BANNER DEDICATO -->
+    <div class="nudge-banner">
+        <div class="nudge-content">
+            <span>⏱️ ATTENZIONE: Questa offerta di lavoro scade tra:</span>
+            <span class="timer-badge" id="countdown-display">05:00</span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-wrapper">
+        <div class="content-column">
+            <!-- ANNUNCIO CARD -->
+            <article class="card">
+                <h1 class="job-title">Junior Content & Digital Assistant</h1>
+                <div class="company-name">Nexus Digital Solutions S.r.l.</div>
+                
+                <div class="badge-list">
+                    <span class="badge">🌐 Smart Working / Remoto</span>
+                    <span class="badge">💼 Contratto Junior a Tempo Indeterminato</span>
+                    <span class="badge">💰 RAL € 24.000 - € 27.000</span>
+                    <span class="badge">⏱️ Full-time</span>
+                </div>
+
+                <h2 class="section-title">Descrizione della posizione</h2>
+                <p>Nexus Digital Solutions è alla ricerca di una risorsa motivata da inserire nel proprio team come <strong>Junior Content & Digital Assistant</strong>. La risorsa lavorerà in modalità prevalentemente remota, fornendo supporto operativo nella gestione, aggiornamento e pubblicazione di contenuti digitali sui portali web aziendali e sui canali di comunicazione del gruppo.</p>
+
+                <h2 class="section-title">Mansioni e Responsabilità</h2>
+                <ul class="job-list">
+                    <li>Pubblicazione e revisione di articoli e contenuti sui CMS aziendali.</li>
+                    <li>Aggiornamento periodico dei dati e dei materiali digitali sulle pagine web.</li>
+                    <li>Organizzazione dei file e gestione strutturata del database aziendale.</li>
+                    <li>Supporto operativo nella gestione del calendario editoriale per i canali social.</li>
+                    <li>Controllo qualità e veridicità della corretta pubblicazione online.</li>
+                    <li>Supporto generico alle attività digitali e operative del team.</li>
+                </ul>
+
+                <h2 class="section-title">Requisiti richiesti</h2>
+                <ul class="job-list">
+                    <li>Diploma di scuola secondaria superiore o Laurea (anche triennale).</li>
+                    <li>Buona familiarità con l'uso del personal computer e navigazione Internet.</li>
+                    <li>Conoscenza base dei principali strumenti di produttività (Office, Google Workspace).</li>
+                    <li>Buona capacità di gestione del tempo e precisione nei compiti assegnati.</li>
+                    <li>Attitudine al lavoro in team e alla collaborazione a distanza.</li>
+                </ul>
+
+                <h2 class="section-title">Benefit e Cosa Offriamo</h2>
+                <ul class="job-list">
+                    <li>Piena flessibilità lavorativa da remoto con orari flessibili.</li>
+                    <li>Computer aziendale e rimborso spese per connessione internet.</li>
+                    <li>Affiancamento iniziale e piano di formazione continua.</li>
+                    <li>Ambiente di lavoro giovane, inclusivo e stimolante.</li>
+                </ul>
+            </article>
+
+            <!-- AZIENDA CARD -->
+            <article class="card">
+                <h2 class="section-title">Perché lavorare con noi - Nexus Digital Solutions</h2>
+                <p>Siamo una realtà in forte espansione specializzata nella trasformazione digitale delle imprese. Crediamo fermamente nel valore del lavoro flessibile, nell'autonomia delle persone e nell'importanza di un ambiente di lavoro collaborativo e privo di burocrazia superflua.</p>
+
+                <h3 class="section-title" style="font-size: 1rem;">Il nostro ambiente di lavoro</h3>
+                <div class="office-gallery">
+                    <!-- Immagini reali e stabili via Unsplash Source/CDNs -->
+                    <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80" alt="Ufficio moderno aperto" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80" alt="Team al lavoro in collaborazione" loading="lazy">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80" alt="Postazione di lavoro digitale" loading="lazy">
+                </div>
+            </article>
+
+            <!-- SECONDARY CTA CARD -->
+            <article class="card" style="text-align: center; background: #f0fdf4; border-color: #bbf7d0;">
+                <h2 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #166534;">Sei pronto a iniziare la tua carriera con noi?</h2>
+                <p style="margin-bottom: 1.5rem; color: #15803d;">Invia la tua candidatura oggi stesso per non perdere la priorità nella selezione.</p>
+                <button class="apply-btn apply-btn-large js-apply-btn" data-button-id="bottom_apply">
+                    🚀 Candidati ora
+                </button>
+            </article>
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Candidatura Rapida</h3>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                    Richiede meno di 2 minuti. Non è richiesta alcuna registrazione preventiva.
+                </p>
+                <button class="apply-btn js-apply-btn" data-button-id="sidebar_apply">
+                    Candidati ora
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- FIREBASE APP & FIRESTORE MODULAR SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // CONFIGURAZIONE FIREBASE
+        const firebaseConfig = {
+          
+    apiKey: "AIzaSyD_TAgl9zyLc5-HTmhRJk_TOLdi882zeDs",
+    authDomain: "sitobanner-90b36.firebaseapp.com",
+    projectId: "sitobanner-90b36",
+    storageBucket: "sitobanner-90b36.firebasestorage.app",
+    messagingSenderId: "937428358060",
+    appId: "1:937428358060:web:8595298978041df30f2009"
+
+        };
+
+        // Inizializzazione
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // CONFIGURAZIONE SPERIMENTALE
+        const MICROSOFT_FORMS_URL = "https://forms.cloud.microsoft/e/XVyDcrqcGb";
+        const COUNTDOWN_INITIAL_SECONDS = 300; // 5 minuti
+
+        // STATO SPERIMENTALE (MEMORIA LOCALE BROWSER)
+        const entryTimestamp = Date.now();
+        const sessionId = generateUUID();
+        let applicationSubmitted = false;
+        let remainingSeconds = COUNTDOWN_INITIAL_SECONDS;
+
+        // GENERATORE UUID ANANIMO
+        function generateUUID() {
+            return 's_' + 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // GESTIONE COUNTDOWN REALE (Utilizza l'orologio interno del sistema)
+        const countdownElement = document.getElementById('countdown-display');
+        const countdownStartedAt = new Date(entryTimestamp).toISOString();
+
+        function updateCountdownVisuals() {
+            const now = Date.now();
+            const elapsed = Math.floor((now - entryTimestamp) / 1000);
+            remainingSeconds = Math.max(0, COUNTDOWN_INITIAL_SECONDS - elapsed);
+
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            
+            countdownElement.textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            if (remainingSeconds === 0) {
+                countdownElement.textContent = "SCADUTO";
+                countdownElement.style.backgroundColor = "#475569";
+            }
+        }
+
+        const timerInterval = setInterval(updateCountdownVisuals, 1000);
+
+        // LOGICA DI TRACCIAMENTO ED EVENTO DI CLICK
+        async function handleApplyClick(event) {
+            // PREVENZIONE DOPPIO CLICK
+            if (applicationSubmitted) return;
+            applicationSubmitted = true;
+
+            const clickTimestamp = Date.now();
+            const clickedButtonElement = event.currentTarget;
+            const buttonId = clickedButtonElement.getAttribute('data-button-id');
+
+            // Disabilita graficamente tutti i pulsanti della pagina
+            document.querySelectorAll('.js-apply-btn').forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = "Reindirizzamento in corso...";
+            });
+
+            // CALCOLO ACCURATO METRICHE
+            const timeToApplySeconds = parseFloat(((clickTimestamp - entryTimestamp) / 1000).toFixed(3));
+
+            const sessionRecord = {
+                sessionId: sessionId,
+                entryTime: new Date(entryTimestamp).toISOString(),
+                clickTime: new Date(clickTimestamp).toISOString(),
+                countdownStartedAt: countdownStartedAt,
+                timeToApply: timeToApplySeconds,
+                timeOnPage: timeToApplySeconds,
+                button: buttonId,
+                userAgent: navigator.userAgent,
+                screenResolution: `${window.innerWidth}x${window.innerHeight}`
+            };
+
+            // SALVATAGGIO SU FIRESTORE
+            try {
+                // Scrittura nella collezione: experiments/jobaround/sessions/sessionId
+                const sessionRef = doc(db, "experiments", "jobaround", "sessions", sessionId);
+                await setDoc(sessionRef, sessionRecord);
+                
+                // Successo -> Reindirizzamento
+                window.location.href = MICROSOFT_FORMS_URL;
+            } catch (error) {
+                console.error("Errore nel salvataggio dei dati su Firestore:", error);
+                
+                // FALLBACK: Se la connessione fallisce, reindirizza dopo 1.5 sec
+                setTimeout(() => {
+                    window.location.href = MICROSOFT_FORMS_URL;
+                }, 1500);
+            }
+        }
+
+        // EVENT LISTENER
+        document.querySelectorAll('.js-apply-btn').forEach(button => {
+            button.addEventListener('click', handleApplyClick);
+        });
+
+        // RILEVAMENTO USCITA (VISIBILITY CHANGE / PAGEHIDE)
+        window.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && !applicationSubmitted) {
+                const exitTimestamp = Date.now();
+                const timeOnPageSeconds = parseFloat(((exitTimestamp - entryTimestamp) / 1000).toFixed(3));
+                
+                // Tenta invio beacon senza bloccare (limitazione browser accettata)
+                const exitRecord = {
+                    sessionId: sessionId,
+                    entryTime: new Date(entryTimestamp).toISOString(),
+                    exitTime: new Date(exitTimestamp).toISOString(),
+                    timeOnPage: timeOnPageSeconds,
+                    button: "none_exited"
+                };
+                
+                const sessionRef = doc(db, "experiments", "jobaround", "sessions", sessionId);
+                setDoc(sessionRef, exitRecord, { merge: true }).catch(() => {});
+            }
+        });
+    </script>
+</body>
+</html>
